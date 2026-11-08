@@ -185,11 +185,18 @@ Also allowed: **Question** (you need the author's intent to judge).
 
 ### Not reviewed
 <files or areas skipped, and why>
+
+### Summary
+| # | Severity | File | Review comment |
+|---|---|---|---|
+| 1 | Blocker | `api/app/services/employee_service.py:44` | <one line: the problem and the fix> |
+| 2 | Major | `web/src/queries/employee_queries.ts:12` | ... |
 ```
 
 Rules for the output:
 - Always cite `path:line`. Quote at most a few lines of code.
 - Order findings by severity, then by risk. Omit empty sections.
+- End with the Summary table: one row per finding (questions included), in the same order and numbering as the sections above. Keep each cell to one line so the table reads in a terminal: one `path:line` per row (name any other locations in the detailed finding) and a comment of one short sentence. With no findings, write "No findings" instead of the table.
 - Fixes are minimal and follow the project's conventions (names, layers, constants, typing).
 - If there are no findings, say so plainly and still show the checks.
-- End by offering to apply the fixes. Don't apply them unprompted.
+- After the table, offer to apply the fixes. Don't apply them unprompted.
