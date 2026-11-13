@@ -2,25 +2,22 @@
 
 <One or two sentences: what the product does and who uses it.> Requirements live in `docs/requirements.md`.
 
-This project follows [engineering-standards](https://github.com/akashvichhi/engineering-standards), copied at commit `<sha>` into `docs/standards/` (only the files for this project's stacks). The shared rules are imported below; the rules in this file add to them or override them, with the reason.
+The project's general rules live in `docs/standards/` and are imported below; the rules in this file add to them or override them, with the reason.
 
 @docs/standards/common.md
 @docs/standards/api-contract.md
 
-Keep the `api-contract.md` import only if the project has an HTTP API. Stack rules load from each app folder's `CLAUDE.md` (`api/`, `web/`, `android/`, ...) when working in that folder.
+Keep the `api-contract.md` import only if the project has an HTTP API. Stack rules load from each app folder's `CLAUDE.md` when working in that folder.
 
 ## Repo layout
 
-Keep only the folders this project has.
+One line per app folder this project has.
 
 ```
 <project>/
-├── api/            FastAPI project (SQLAlchemy + <database>)
-├── web/            React project (TypeScript + Vite + Mantine)
-├── android/        Android app (Kotlin + Jetpack Compose)
+├── <app>/          <what it is and its stack>, one line per app folder
 ├── docs/           requirements, architecture, decisions, performance
-│   └── standards/  the copied engineering-standards rules (update by copying again, never edit here)
-├── .claude/skills/ the copied code-review skill (detects this project's stacks)
+│   └── standards/  general rules: common, API contract, one file per stack
 └── CLAUDE.md
 ```
 
@@ -35,4 +32,4 @@ Only what is specific to this project. Delete the examples that don't apply.
 - **Public endpoints (no session):** <e.g. POST /api/v1/auth/login, GET /api/health>.
 - **Deployment:** <e.g. Render auto-deploys every push to `master`>.
 - **Task log:** <e.g. after every task, add an entry to `docs/ai-workflow.md`: prompt, what the AI produced, what was changed and why, how it was verified>.
-- **Overrides:** <rule from the standards> → <what this project does instead, and why>.
+- **Overrides:** <rule from docs/standards/> → <what this project does instead, and why>.

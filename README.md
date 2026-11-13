@@ -39,7 +39,7 @@ Each rules file stands on its own for its stack. `common.md` never names a stack
 
 Example: an Android app that hosts a small HTTP server with a React page copies `common.md`, `api-contract.md`, `kotlin-android.md`, and `react-typescript.md`, and nothing about FastAPI.
 
-The code review skill is the one exception: it's copied whole, with every checklist, because it detects the project's stacks and ignores the checklists that don't apply.
+The code review skill is the one exception: it's installed whole, once per machine, with every checklist, because it detects the project's stacks and ignores the checklists that don't apply.
 
 ## Use it in a project
 
@@ -52,7 +52,7 @@ mkdir -p docs/standards
 cp <standards>/rules/common.md <standards>/rules/<stack>.md ... docs/standards/
 ```
 
-Record the standards commit you copied from in the project's root `CLAUDE.md`, so it's clear which version the project follows.
+The copies become the project's own rules. They never mention this repo, and the project doesn't record where they came from (no link, no commit SHA).
 
 ### 2. Add the CLAUDE.md files
 
@@ -72,22 +72,22 @@ Copy the config templates for the project's stacks:
 - React: `templates/web/eslint.config.js` and `templates/web/vite.config.ts`. Install the dev dependencies listed at the top of each file, add `"paths": { "@src/*": ["./src/*"] }` to `web/tsconfig.app.json`, and add the `check` script to `web/package.json` (see the Tooling section of `react-typescript.md`).
 - Android: add an `android/Makefile` with a `check` target (see the Tooling section of `kotlin-android.md`; a template follows once it's been tested in a project).
 
-After copying, the project's config files are its source of truth.
+After copying, the project's config files are its source of truth. Improvements that apply to every project go back into the templates here.
 
-### 4. Add the code review skill
+### 4. Install the code review skill (once per machine)
 
-Copy the whole skill folder. It detects the project's stacks (FastAPI from `pyproject.toml`, React from `package.json`, Android from its Gradle files) and uses only the matching checklists, so the same folder works in every project:
+Install the whole skill folder in `~/.claude/skills/`, so every project can use it and no project carries a copy. It detects the project's stacks (FastAPI from `pyproject.toml`, React from `package.json`, Android from its Gradle files) and uses only the matching checklists:
 
 ```bash
-mkdir -p .claude/skills
-cp -r <standards>/skills/code-review .claude/skills/code-review
+mkdir -p ~/.claude/skills
+cp -r <standards>/skills/code-review ~/.claude/skills/code-review   # or a symlink, to pick up changes automatically
 ```
 
-Or put it in `~/.claude/skills/` once to use it in every project on your machine. Then ask Claude Code to "review my changes", or run `/code-review`.
+Then ask Claude Code to "review my changes", or run `/code-review`.
 
 ### Updating a project
 
-When the standards change, copy the changed files for the project's stacks again, update the recorded commit, and commit that as one `chore(standards): ...` change. Never edit the copies in the project; improve the standards here and copy them again.
+When a rule changes here, copy the changed files for the project's stacks again and commit that as one `docs: ...` change in the project. Improve rules here and copy them again rather than letting the projects' copies drift apart.
 
 ## Changing the standards
 

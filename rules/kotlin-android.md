@@ -1,6 +1,6 @@
 # Android rules (Kotlin + Jetpack Compose)
 
-Stack: Kotlin 2.x, Android Gradle Plugin, Jetpack Compose (Material 3), Kotlin coroutines and Flow, Jetpack ViewModel and Navigation, DataStore, Room (when a local database is needed). Examples use an `employee` entity; replace it with your own.
+Stack: Kotlin 2.x, Android Gradle Plugin, Jetpack Compose (Material 3), Kotlin coroutines and Flow, Jetpack ViewModel and Navigation, DataStore, Room (when a local database is needed). Examples use an `employee` entity.
 
 Read [`common.md`](common.md) first, and [`api-contract.md`](api-contract.md) when the app calls or hosts an HTTP API. These rules add to them, and override `common.md` where they say so.
 
@@ -167,4 +167,3 @@ android/
 ## Tooling
 - **ktlint** for formatting (Kotlin conventions, ktlint `filename` rule), **detekt** for static analysis (including `!!`, `GlobalScope`, magic numbers, complexity), **Android Lint** with warnings as errors, **Kover** for coverage.
 - `android/Makefile`: `check` runs ktlint (format), detekt, Android Lint, the unit tests, and the Kover verification at the project threshold (default 90%). The threshold lives in the check target, not in the default test task, so a single test class runs without failing on coverage.
-- Config templates for Android (`Makefile`, detekt config, version catalog) are added to the engineering-standards `templates/android/` once they've been tested in a project, with their tested versions in a header comment.

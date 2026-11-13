@@ -1,6 +1,6 @@
 # Frontend rules (React + TypeScript)
 
-Stack: React 19, TypeScript (`strict`), Vite, Mantine, TanStack React Query, React Router, axios, Vitest + React Testing Library. Examples use an `employee` resource; replace it with your own.
+Stack: React 19, TypeScript (`strict`), Vite, Mantine, TanStack React Query, React Router, axios, Vitest + React Testing Library. Examples use an `employee` resource.
 
 Read [`common.md`](common.md) first, and [`api-contract.md`](api-contract.md) when the app talks to an HTTP API. These rules add to them.
 
@@ -178,7 +178,7 @@ Goal: **no JavaScript error ever leaves the user on a blank screen.** Use `react
 ## Routing and code splitting
 - Every page is lazy-loaded with `React.lazy` and rendered through the route boundary. **NEVER** import a page statically.
 - Paths and path builders live in `routes/route_paths.ts`. **NEVER** hardcode a path string.
-- Vendor code is split into long-cached chunks (React, Mantine, React Query, icons), and every build file is named by its content hash under `assets/`. Start from the engineering-standards template `templates/web/vite.config.ts`. The chunk checks must test specific packages before generic ones (`@tanstack/react-query` and `@tabler/icons-react` contain "react").
+- Vendor code is split into long-cached chunks (React, Mantine, React Query, icons), and every build file is named by its content hash under `assets/`. `web/vite.config.ts` does both. Its chunk checks must test specific packages before generic ones (`@tanstack/react-query` and `@tabler/icons-react` contain "react").
 
 ## Performance
 - `useCallback` for functions passed as props or used in dependency arrays; `useMemo` for derived data and for objects or arrays passed as props; `React.memo` for components that re-render often with the same props (rows, list items, cards, form fields). Don't wrap trivial values.
@@ -189,9 +189,7 @@ Goal: **no JavaScript error ever leaves the user on a blank screen.** Use `react
 ## Tooling
 `package.json` script `check`: `lint` (ESLint `--fix`), `lint:style` (Stylelint `--fix`), `tsc -b --noEmit`, `vitest run`.
 
-Start from the engineering-standards templates `templates/web/eslint.config.js` and `templates/web/vite.config.ts`. After copying, the project's files are its source of truth; improvements that apply to every project go back into the templates.
-
-The ESLint config (flat config, `typescript-eslint`, `react`, `react-hooks`, `import`, `@stylistic`) enforces: no `any`; explicit return and boundary types; no unused variables (except `_`-prefixed); no relative parent imports; ordered, grouped imports; sorted JSX props; rules of hooks; `console` limited to `error`; 2-space indent; LF line endings. The Stylelint config (`stylelint-config-standard-scss`, `stylelint-declaration-strict-value`) enforces token-only values, max nesting 3, no IDs, no `!important`, camelCase classes, and no `@import`. Each project's config files are the source of truth.
+The ESLint config (flat config, `typescript-eslint`, `react`, `react-hooks`, `import`, `@stylistic`) enforces: no `any`; explicit return and boundary types; no unused variables (except `_`-prefixed); no relative parent imports; ordered, grouped imports; sorted JSX props; rules of hooks; `console` limited to `error`; 2-space indent; LF line endings. The Stylelint config (`stylelint-config-standard-scss`, `stylelint-declaration-strict-value`) enforces token-only values, max nesting 3, no IDs, no `!important`, camelCase classes, and no `@import`. The config files themselves are the source of truth.
 
 ## Testing
 - Vitest + React Testing Library for important flows (lists render and paginate, form validation, error and empty states) and for pure utils.

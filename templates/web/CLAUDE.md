@@ -4,7 +4,7 @@
 
 ## Project-specific frontend rules
 
-Only what differs from or adds to the shared React rules. Delete what doesn't apply.
+Only what differs from or adds to the React rules in `docs/standards/`. Delete what doesn't apply.
 
 - **Pages:** <e.g. login, employee_list, salary_insights>
 - **Lists loaded from the API, never copied:** <e.g. countries, departments, job titles from GET /api/v1/employee-options>

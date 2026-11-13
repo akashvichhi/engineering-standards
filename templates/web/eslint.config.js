@@ -1,4 +1,4 @@
-// ESLint flat config for engineering-standards React + TypeScript projects.
+// ESLint flat config for React + TypeScript projects.
 // Copy to web/eslint.config.js. Rules are explained in rules/react-typescript.md.
 //
 // Dev dependencies (tested together; pin exact versions in the project):

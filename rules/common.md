@@ -1,8 +1,8 @@
 # Common rules
 
-Rules for AI agents and humans in every project that uses these standards, whatever its stack. **MUST** and **NEVER** are hard rules; everything else is the strong default. A project's own `CLAUDE.md` may add rules or override one explicitly, with the reason.
+Rules for AI agents and humans working in this project, whatever the part of the code. **MUST** and **NEVER** are hard rules; everything else is the strong default. The project's `CLAUDE.md` files may add rules or override one explicitly, with the reason.
 
-Each stack has its own rules file (for example `fastapi.md`, `react-typescript.md`, `kotlin-android.md`), and projects with an HTTP API also use `api-contract.md`. A project copies only the files for the stacks it has. Where this file says "the stack rules name it", each stack file's **Paths and commands** table gives the exact file, folder, or command.
+Each part of the project (each app folder) has its own stack rules file next to this one. Where this file says "the stack rules name it", that file's **Paths and commands** table gives the exact file, folder, or command.
 
 ---
 
@@ -16,7 +16,7 @@ Each stack has its own rules file (for example `fastapi.md`, `react-typescript.m
 
 ## Organisation and readability
 - **MUST** keep each file in the folder of its layer (see the stack rules). If it's unclear where a file belongs, the structure is wrong; fix the structure.
-- File and folder names are **snake_case** (`employee_service.py`, `employee_table.tsx`), unless the stack rules say otherwise, with the reason.
+- File and folder names are **snake_case** (`employee_service`, `employee_table`), unless the stack rules say otherwise, with the reason.
 - Functions are small and do one thing. Prefer early returns over nested `if`s.
 - No magic numbers or strings: put them in named constants.
 - Names describe intent (`calculateAverageSalary`, not `calc`). No abbreviations except well-known ones (`id`, `url`, `api`).
@@ -72,7 +72,7 @@ Each stack has its own rules file (for example `fastapi.md`, `react-typescript.m
   <optional body: WHY the change was made, not what; wrap at 72>
   ```
   - Types: `feat`, `fix`, `test`, `refactor`, `docs`, `chore` (tooling, deps, config), `perf`, `style` (formatting only).
-  - Scopes: the app folder (`api`, `web`, `android`, ...) or a feature (`employees`, `auth`), e.g. `feat(web/employees): add salary filter`.
+  - Scopes: the app folder (the stack rules name it) or a feature (`employees`, `auth`), optionally combined, e.g. `feat(<app>/employees): add salary filter`.
 - **Stage files explicitly** (`git add <path> <path> ...`). **NEVER** `git add .` or `git add -A` without checking `git status` first.
 - **NEVER commit** secrets, local settings, signing keys, database files, dependency folders, build output, caches, or coverage output (the stack rules list the exact paths). They go in `.gitignore` before the first commit that adds code or config.
 - `.gitattributes` forces LF line endings (`* text=auto eol=lf`).

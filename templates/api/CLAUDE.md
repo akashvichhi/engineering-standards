@@ -4,7 +4,7 @@
 
 ## Project-specific backend rules
 
-Only what differs from or adds to the shared FastAPI rules. Delete what doesn't apply.
+Only what differs from or adds to the FastAPI rules in `docs/standards/`. Delete what doesn't apply.
 
 - **Database:** <e.g. SQLite with WAL, via SQLAlchemy 2.x>
 - **Entities and their layer files:** <e.g. employee, salary_insight, user, session>

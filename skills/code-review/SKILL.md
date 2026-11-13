@@ -1,13 +1,13 @@
 ---
 name: code-review
-description: Staff-level code review of changes in a repo that follows engineering-standards, enforcing the repo's CLAUDE.md rules first, with a checklist per stack the project uses. Use when asked to review a diff, PR, branch, commit, or files.
+description: Staff-level code review of changes, enforcing the repo's CLAUDE.md rules first, with a checklist per stack the project uses. Use when asked to review a diff, PR, branch, commit, or files.
 ---
 
 # Code review
 
 Review like a staff engineer: find what would break, leak, or slow down in production, check it against the project's own rules, and give fixes the author can act on. Fewer real findings beat a long list of guesses.
 
-**This skill only reviews.** Never edit files, stage, commit, push, run migrations against a real database, or run a seed script against anything but a throwaway database. If the user then asks for fixes, apply them following the repo's commit rules (with engineering-standards: show the change and wait for approval before every commit).
+**This skill only reviews.** Never edit files, stage, commit, push, run migrations against a real database, or run a seed script against anything but a throwaway database. If the user then asks for fixes, apply them following the repo's commit rules (usually: show the change and wait for approval before every commit).
 
 ## Stack checklists
 
@@ -18,7 +18,7 @@ The `checklists/` folder next to this file holds one checklist per stack. The sk
 | `fastapi.md` | `fastapi` in a `pyproject.toml` (usually `api/pyproject.toml`) |
 | `react-typescript.md` | `react` in a `package.json` dependencies (usually `web/package.json`) |
 | `kotlin-android.md` | an Android Gradle project: `com.android.application` or `com.android.library` in a `build.gradle.kts` (usually under `android/`) |
-| `api-contract.md` | any of the above serving or calling an HTTP API, or an `api-contract.md` among the project's copied rules |
+| `api-contract.md` | any of the above serving or calling an HTTP API, or an `api-contract.md` among the project's rules (usually `docs/standards/`) |
 
 If the project's `CLAUDE.md` files name its stacks, they win over detection. State the detected stacks in the review's first line (e.g. "Stacks: android, react, api-contract"). Then apply each detected checklist to the part of the change it covers (e.g. the React checklist to `web/` files only).
 

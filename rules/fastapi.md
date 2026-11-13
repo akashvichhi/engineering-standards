@@ -1,6 +1,6 @@
 # Backend rules (FastAPI)
 
-Stack: Python 3.13+, FastAPI, Pydantic v2, SQLAlchemy 2.x, Alembic, `uv`. Examples use an `employee` entity; replace it with your own.
+Stack: Python 3.13+, FastAPI, Pydantic v2, SQLAlchemy 2.x, Alembic, `uv`. Examples use an `employee` entity.
 
 Read [`common.md`](common.md) and [`api-contract.md`](api-contract.md) first. These rules add to them and say how FastAPI implements the contract.
 
@@ -138,4 +138,4 @@ The contract (cookie attributes, endpoints, CSRF, CORS) is in `api-contract.md`.
 
 ## Tooling
 - `uv` for Python and dependencies; `ruff check` + `ruff format`; `mypy --strict` with the Pydantic plugin; `pytest`.
-- `api/Makefile` (from the engineering-standards template `templates/api/Makefile`): `check` runs `ruff check --fix`, `ruff format`, `mypy --strict`, and `pytest --cov --cov-fail-under=<threshold>`.
+- `api/Makefile`: `check` runs `ruff check --fix`, `ruff format`, `mypy --strict`, and `pytest --cov --cov-fail-under=<threshold>`.

@@ -1,4 +1,4 @@
-// Vite + Vitest config for engineering-standards React + TypeScript projects.
+// Vite + Vitest config for React + TypeScript projects.
 // Copy to web/vite.config.ts. Rules are explained in rules/react-typescript.md.
 //
 // Dev dependencies (tested together): vite 8.3.5, @vitejs/plugin-react 6.2.1, vitest 5.1.0, jsdom.

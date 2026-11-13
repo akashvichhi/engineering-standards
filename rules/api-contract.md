@@ -1,6 +1,6 @@
 # HTTP API contract
 
-The contract between an HTTP API and its clients, whatever the server stack (FastAPI, Ktor, ...) or client (React, Android, ...). Server stack rules say **how** to implement it; client stack rules say how to consume it. Examples use an `employee` resource; replace it with your own.
+The contract between the project's HTTP API and its clients. The server's stack rules say **how** it implements the contract; each client's stack rules say how it consumes it. Examples use an `employee` resource.
 
 Read [`common.md`](common.md) first. These rules add to it.
 
@@ -63,7 +63,7 @@ Validation errors (422), and any domain error about one field (e.g. a 409 for a 
 ## Sessions (browsers)
 - Browsers authenticate with a **server-side session** in an **httpOnly cookie** holding only a random session ID. **NEVER** use JWTs or bearer tokens for the browser, and **NEVER** return a token or session ID in a response body.
 - The server stores only a hash of the session ID. Expired sessions are rejected and deleted when used.
-- Cookie: `HttpOnly; Secure; SameSite=Lax; Path=/`, `Max-Age` = session lifetime. `Secure` is on everywhere except local development; a project that must run over plain HTTP records why in its decisions.
+- Cookie: `HttpOnly; Secure; SameSite=Lax; Path=/`, `Max-Age` = session lifetime. `Secure` is on everywhere except local development; if the app must run over plain HTTP, record why in `docs/decisions.md`.
 - Endpoints, when the app has login: `POST /api/v1/auth/login` (200 + `Set-Cookie`, or 401), `POST /api/v1/auth/logout` (204, always succeeds), `GET /api/v1/auth/me` (200 or 401).
 - Login: the same generic error for a wrong email or a wrong password; a new session ID on every login; failed attempts rate-limited per email and IP → 429.
 - Every route requires a session unless it is explicitly listed as public in the project's `CLAUDE.md` (login, health, ...).

@@ -4,7 +4,7 @@
 
 ## Project-specific Android rules
 
-Only what differs from or adds to the shared Android rules. Delete what doesn't apply.
+Only what differs from or adds to the Android rules in `docs/standards/`. Delete what doesn't apply.
 
 - **Package / application ID:** <e.g. com.example.employees>
 - **SDK levels:** <e.g. minSdk 29 (Android 10), because MediaStore's RELATIVE_PATH and IS_PENDING start there (decision 3); targetSdk and compileSdk 36>
