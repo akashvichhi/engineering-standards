@@ -6,14 +6,17 @@ This project follows [engineering-standards](https://github.com/akashvichhi/engi
 
 @.standards/rules/common.md
 
-Backend rules load from `api/CLAUDE.md` and frontend rules from `web/CLAUDE.md` when working in those folders.
+Backend rules load from `api/CLAUDE.md`, frontend rules from `web/CLAUDE.md`, and Android rules from `android/CLAUDE.md` when working in those folders.
 
 ## Repo layout
+
+Keep only the folders this project has.
 
 ```
 <project>/
 ├── api/            FastAPI project (SQLAlchemy + <database>)
 ├── web/            React project (TypeScript + Vite + Mantine)
+├── android/        Android app (Kotlin + Jetpack Compose)
 ├── docs/           requirements, architecture, decisions, performance
 ├── .standards/     engineering-standards (git submodule; don't edit here)
 ├── Dockerfile

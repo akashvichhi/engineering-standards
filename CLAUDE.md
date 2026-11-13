@@ -1,6 +1,6 @@
 # CLAUDE.md: engineering-standards
 
-This repo holds shared rules (`rules/`), project templates (`templates/`), and skills (`skills/`) for FastAPI + React/TypeScript projects. Projects use it as a git submodule at `.standards/`. See `README.md`.
+This repo holds shared rules (`rules/`), project templates (`templates/`), and skills (`skills/`) for FastAPI + React/TypeScript and Kotlin Android projects. Projects use it as a git submodule at `.standards/`. See `README.md`.
 
 ## Rules for working in this repo
 - Rules are for **every** project. Anything specific to one product (its entities, time zone, currency, hosting) belongs in that project's `CLAUDE.md`, not here. Examples may use a generic `employee` entity.

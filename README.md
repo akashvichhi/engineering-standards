@@ -1,6 +1,6 @@
 # engineering-standards
 
-Shared rules and a code review skill for my FastAPI + React/TypeScript projects. They're written for AI coding agents (Claude Code reads them through `CLAUDE.md`) and work just as well for humans.
+Shared rules and a code review skill for my FastAPI + React/TypeScript and Kotlin Android projects. They're written for AI coding agents (Claude Code reads them through `CLAUDE.md`) and work just as well for humans.
 
 ## What's here
 
@@ -9,11 +9,13 @@ engineering-standards/
 ├── rules/
 │   ├── common.md              design, data, privacy, dependencies, docs, testing, checks, commits
 │   ├── fastapi.md             backend: structure, layers, REST and response contract, auth, data, migrations
-│   └── react-typescript.md    frontend: structure, types, data fetching, UI states, styling, error boundaries
+│   ├── react-typescript.md    frontend: structure, types, data fetching, UI states, styling, error boundaries
+│   └── kotlin-android.md      Android: structure, layers, coroutines, Compose UI state, security, testing
 ├── templates/
 │   ├── CLAUDE.md              root CLAUDE.md for a project (imports the common rules)
 │   ├── api/CLAUDE.md          imports the FastAPI rules
 │   ├── api/Makefile           the check target (ruff, mypy, pytest with coverage)
+│   ├── android/CLAUDE.md      imports the Android rules
 │   ├── web/CLAUDE.md          imports the React rules
 │   ├── web/eslint.config.js   ESLint flat config enforcing the frontend rules
 │   └── web/vite.config.ts     @src alias, hashed build output, vendor chunks, Vitest
@@ -41,9 +43,10 @@ Copy the templates and fill in the project section:
 cp .standards/templates/CLAUDE.md CLAUDE.md
 cp .standards/templates/api/CLAUDE.md api/CLAUDE.md
 cp .standards/templates/web/CLAUDE.md web/CLAUDE.md
+cp .standards/templates/android/CLAUDE.md android/CLAUDE.md
 ```
 
-They import the shared rules with `@` paths (`@.standards/rules/common.md`), which Claude Code loads together with the file. Claude Code reads `api/CLAUDE.md` and `web/CLAUDE.md` only when it works in those folders, so a frontend task doesn't load the backend rules.
+Copy only the ones for the sides the project has. They import the shared rules with `@` paths (`@.standards/rules/common.md`), which Claude Code loads together with the file. Claude Code reads `api/CLAUDE.md`, `web/CLAUDE.md`, and `android/CLAUDE.md` only when it works in those folders, so a frontend task doesn't load the backend rules.
 
 ### 3. Add the frontend configs
 
@@ -58,6 +61,7 @@ Install the dev dependencies listed at the top of each file, and add `"paths": {
 
 - Backend: copy `templates/api/Makefile`, or add its `check` target to your own.
 - Frontend: add the `check` script to `web/package.json` (see the Tooling section of `rules/react-typescript.md`).
+- Android: add an `android/Makefile` with a `check` target (see the Tooling section of `rules/kotlin-android.md`; a template follows once it's been tested in a project).
 
 ### 5. Add the code review skill
 

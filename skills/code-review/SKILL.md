@@ -1,9 +1,9 @@
 ---
 name: code-review
-description: Staff-level code review of changes in a FastAPI + React/TypeScript repo, enforcing the repo's CLAUDE.md rules first. Use when asked to review a diff, PR, branch, commit, or files.
+description: Staff-level code review of changes in a FastAPI + React/TypeScript or Kotlin Android repo, enforcing the repo's CLAUDE.md rules first. Use when asked to review a diff, PR, branch, commit, or files.
 ---
 
-# FastAPI + React/TypeScript code review
+# FastAPI + React/TypeScript + Kotlin Android code review
 
 Review like a staff engineer: find what would break, leak, or slow down in production, check it against the project's own rules, and give fixes the author can act on. Fewer real findings beat a long list of guesses.
 
@@ -25,10 +25,10 @@ State the scope in the first line of the review. If the diff is over ~1,500 chan
 
 ## 2. Load the project's rules
 
-1. Read every `CLAUDE.md` that applies: the repo root, `api/CLAUDE.md`, `web/CLAUDE.md`, and any files they import (e.g. `.standards/rules/*.md`). **Project rules override this skill.** Where this checklist and the project disagree, follow the project.
+1. Read every `CLAUDE.md` that applies: the repo root, `api/CLAUDE.md`, `web/CLAUDE.md`, `android/CLAUDE.md`, and any files they import (e.g. `.standards/rules/*.md`). **Project rules override this skill.** Where this checklist and the project disagree, follow the project.
 2. Skim `docs/decisions.md` (or ADRs) for decisions touching the changed code. Never flag something a recorded decision explicitly allows; cite the decision instead if it matters.
 3. Read `docs/requirements.md` when a change adds behaviour, to check it was asked for.
-4. Config files are the source of truth for tooling (`pyproject.toml`, `Makefile`, `eslint.config.js`, `stylelint.config.js`, `tsconfig*.json`, `vite.config.ts`), even if a doc quotes an older copy.
+4. Config files are the source of truth for tooling (`pyproject.toml`, `Makefile`, `eslint.config.js`, `stylelint.config.js`, `tsconfig*.json`, `vite.config.ts`, `*.gradle.kts`, `libs.versions.toml`, detekt config), even if a doc quotes an older copy.
 
 ## 3. Understand the change before judging it
 
@@ -38,7 +38,7 @@ State the scope in the first line of the review. If the diff is over ~1,500 chan
 
 ## 4. Run the checks without modifying files
 
-`make check` and `npm run check` run with `--fix` / `ruff format`, which **rewrite files**. During a review, run the read-only equivalents instead:
+`make check` and `npm run check` run with `--fix` / `ruff format` / ktlint format, which **rewrite files**. During a review, run the read-only equivalents instead:
 
 ```bash
 # api/
@@ -52,6 +52,9 @@ npx eslint .
 npx stylelint "src/**/*.scss" --allow-empty-input
 npx tsc -b --noEmit
 npx vitest run
+
+# android/
+./gradlew ktlintCheck detekt lintDebug testDebugUnitTest   # check tasks only, never the format task
 ```
 
 Run only the side(s) the change touches. If a tool is missing, say so and continue. Report the results in one block; don't turn each lint error into a separate finding. Spend the review on what tools can't catch.
@@ -65,7 +68,7 @@ Work through it in priority order. Each item is a question; only raise a finding
 - Pagination: off-by-one, a page beyond the last, 0 results (`total_pages: 0`)?
 - Race conditions: double submits, a mutation finishing after navigation, a stale response overwriting a newer one?
 - Money: never `float`, `Number()`, or `parseFloat`. Backend `Decimal` with the project's rounding; frontend formats the string only.
-- Time: no naive `datetime.now()`, `date.today()`, or browser-local date formatting. Use the app's time-zone constant and clock helper.
+- Time: no naive `datetime.now()`, `date.today()`, browser-local date formatting, or Android `System.currentTimeMillis()` / `Instant.now()` without the injected `Clock`. Use the app's time-zone constant and clock helper.
 
 ### 5.2 Security and privacy
 - **Personal data in logs or errors:** names, emails, salaries, or request/response bodies in `logger.*`, `print`, `console.*`, exception messages, or error responses. Always a blocker.
@@ -113,14 +116,29 @@ Work through it in priority order. Each item is a question; only raise a finding
 - **Performance:** memoisation per the project rules, but flag memoising trivial values as noise; stable `key`s (never indexes for changing lists); named imports for icons and libraries; debounced search.
 - User-facing strings come from `src/constants/`.
 
-### 5.6 Tests
+### 5.6 Android (Kotlin, Jetpack Compose, coroutines)
+- **Layering:** composables render and forward events; ViewModels hold one `StateFlow<UiState>` and call use cases; use cases hold the rules; repositories own data access; `platform/` components stay thin. No `Context` or `View` held by a ViewModel.
+- **Dependencies:** passed through constructors and wired in the `AppContainer`; no singletons or `object` state holders inside classes; dispatchers and `Clock` injected, never `Dispatchers.IO` or `Instant.now()` referenced directly.
+- **Kotlin safety:** no `!!`; platform types given an explicit Kotlin type; no `Any` for domain data; explicit types on public declarations; `when` over sealed types without `else`.
+- **Coroutines:** no `GlobalScope` or `runBlocking`; no disk, network, or database work on the main thread; `CancellationException` rethrown; streams handled in chunks, never loaded whole into memory.
+- **UI state:** no exposed `MutableStateFlow`; state collected with `collectAsStateWithLifecycle()`; screens split into `<Screen>Route` and a stateless `<Screen>Screen`; no `LaunchedEffect` mirroring state; one-off events not lost while the screen is stopped; stable `key`s in lazy lists.
+- **States and feedback:** placeholders shaped like content, error state with retry, empty state with a hint, action buttons show progress and are disabled while pending, no screen-blocking spinners, destructive actions confirm first.
+- **Resources and accessibility:** user-facing text from `strings.xml` (plurals for counts); colours, type, and spacing from the theme, no hardcoded dp or hex; `contentDescription` on icon-only buttons; 48dp touch targets; no colour-only status.
+- **Security and privacy:** no personal data, file names, or file contents in logs; no direct `android.util.Log` outside the logger wrapper; explicit `android:exported`; cleartext and other exceptions scoped and recorded; no secrets in the APK; immutable `PendingIntent`s; file names from outside sanitised; no `MANAGE_EXTERNAL_STORAGE`.
+- **Permissions:** requested at the moment of use, denial and "don't ask again" handled, each manifest permission explained in `docs/architecture.md`.
+- **Lifecycle and background:** state survives rotation (ViewModel) and process death where it matters (`SavedStateHandle`); foreground services declare their type and show a stop action; wake and Wi-Fi locks released in `finally`.
+- **Persistence:** DataStore, not `SharedPreferences`; Room schema changes have a migration and a test; no `fallbackToDestructiveMigration()` in release.
+- **Build:** versions only in `libs.versions.toml`, pinned; `gradle.lockfile` updated with dependency changes; keep rules commented; no keystores or `local.properties` in the diff.
+
+### 5.7 Tests
 - New behaviour has a test named after the behaviour; bug fixes have a test that fails without the fix.
 - Error paths are tested (404, 409, 422, 401), not only the happy path.
 - Tests are deterministic: no real clock, network, or unseeded randomness; each builds its own data with factories; no dependence on seed data or order.
 - Frontend tests mock at the network edge (API module or MSW), query by role and label, and don't assert on CSS classes or React Query internals.
+- Android tests use fakes over mocks, `runTest` with injected test dispatchers and a fixed `Clock`, assert on the emitted `UiState`, and find Compose nodes by text, content description, or role (`testTag` only as a last resort).
 - Coverage stays at the project threshold.
 
-### 5.7 Project hygiene
+### 5.8 Project hygiene
 - New runtime dependency: pinned exact version, lock file updated, a one-line reason in `docs/decisions.md`. Could a few lines of our own code replace it?
 - Behaviour or setup changed → `README.md` / `docs/architecture.md` updated; significant design choice → ADR in `docs/decisions.md`; affected numbers → `docs/performance.md`; any project task log written.
 - Commits (when reviewing commits): Conventional Commits, one logical change each, the TDD red → green order visible, a `Co-Authored-By:` trailer on AI-assisted commits.
