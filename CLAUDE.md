@@ -19,4 +19,3 @@ This repo holds shared rules (`rules/`), project templates (`templates/`), and s
 - Conventional Commits: `<type>(<scope>): <summary>`, scopes `rules`, `templates`, `skills`, `readme`.
 - **AI agents NEVER commit or push without the user's explicit approval.** Show the changed files, a summary, and the proposed commit message, then wait. Approval covers one commit; pushing needs its own approval every time.
 - Stage files explicitly; **NEVER** `git add .` without checking `git status`.
-- **NEVER** write attribution text (co-author trailers, "generated with" lines) into commit messages by hand; it is controlled only by the AI tool's own settings.

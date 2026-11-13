@@ -73,7 +73,6 @@ Each stack has its own rules file (for example `fastapi.md`, `react-typescript.m
   ```
   - Types: `feat`, `fix`, `test`, `refactor`, `docs`, `chore` (tooling, deps, config), `perf`, `style` (formatting only).
   - Scopes: the app folder (`api`, `web`, `android`, ...) or a feature (`employees`, `auth`), e.g. `feat(web/employees): add salary filter`.
-- **NEVER** write attribution text (co-author trailers, "generated with" lines) into commit messages or PR descriptions by hand. Attribution is controlled only by the AI tool's own settings.
 - **Stage files explicitly** (`git add <path> <path> ...`). **NEVER** `git add .` or `git add -A` without checking `git status` first.
 - **NEVER commit** secrets, local settings, signing keys, database files, dependency folders, build output, caches, or coverage output (the stack rules list the exact paths). They go in `.gitignore` before the first commit that adds code or config.
 - `.gitattributes` forces LF line endings (`* text=auto eol=lf`).

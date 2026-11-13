@@ -83,7 +83,7 @@ Apply each checklist for a detected stack to the part of the change it covers. S
 ### 5.5 Project hygiene
 - New runtime dependency: pinned exact version, lock file updated, a one-line reason in `docs/decisions.md`. Could a few lines of our own code replace it?
 - Behaviour or setup changed → `README.md` / `docs/architecture.md` updated; significant design choice → ADR in `docs/decisions.md`; affected numbers → `docs/performance.md`; any project task log written.
-- Commits (when reviewing commits): Conventional Commits, one logical change each, the TDD red → green order visible, no hand-written attribution text.
+- Commits (when reviewing commits): Conventional Commits, one logical change each, the TDD red → green order visible.
 - No dead code, commented-out code, debug logging, or TODOs without context.
 - Names, constants, and messages in their stack's single home (no inline strings or magic numbers).
 
