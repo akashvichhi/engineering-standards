@@ -1,6 +1,6 @@
 # Frontend rules: <Project name>
 
-@../.standards/rules/react-typescript.md
+@../docs/standards/react-typescript.md
 
 ## Project-specific frontend rules
 

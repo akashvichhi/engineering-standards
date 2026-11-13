@@ -2,9 +2,27 @@
 
 Stack: React 19, TypeScript (`strict`), Vite, Mantine, TanStack React Query, React Router, axios, Vitest + React Testing Library. Examples use an `employee` resource; replace it with your own.
 
-Read [`common.md`](common.md) first. These rules add to it.
+Read [`common.md`](common.md) first, and [`api-contract.md`](api-contract.md) when the app talks to an HTTP API. These rules add to them.
 
 ---
+
+## Paths and commands
+
+What `common.md` refers to as "the stack rules name it":
+
+| Item | React + TypeScript |
+|---|---|
+| Configuration (the only place `import.meta.env` is read) | `src/config/env.ts`, with `.env.example` listing every variable |
+| Time zone and display formats | `src/constants/time_constants.ts` |
+| User-facing messages | `src/constants/messages.ts` |
+| Type checking | TypeScript `strict: true`, `tsc -b --noEmit` |
+| Money | Typed `string`; formatted with `Intl.NumberFormat`, never parsed |
+| Lock file / install | `package-lock.json` / `npm ci` |
+| Tooling config files | `eslint.config.js`, `stylelint.config.js`, `tsconfig*.json`, `vite.config.ts` |
+| Full check | `npm run check` in `web/` |
+| One test file | `npx vitest run src/utils` |
+| Never commit | `.env`, `node_modules/`, `dist/`, `coverage/` |
+| Commit scope | `web` |
 
 ## Folder structure
 
@@ -160,7 +178,7 @@ Goal: **no JavaScript error ever leaves the user on a blank screen.** Use `react
 ## Routing and code splitting
 - Every page is lazy-loaded with `React.lazy` and rendered through the route boundary. **NEVER** import a page statically.
 - Paths and path builders live in `routes/route_paths.ts`. **NEVER** hardcode a path string.
-- Vendor code is split into long-cached chunks (React, Mantine, React Query, icons), and every build file is named by its content hash under `assets/`. Start from [`templates/web/vite.config.ts`](../templates/web/vite.config.ts). The chunk checks must test specific packages before generic ones (`@tanstack/react-query` and `@tabler/icons-react` contain "react").
+- Vendor code is split into long-cached chunks (React, Mantine, React Query, icons), and every build file is named by its content hash under `assets/`. Start from the engineering-standards template `templates/web/vite.config.ts`. The chunk checks must test specific packages before generic ones (`@tanstack/react-query` and `@tabler/icons-react` contain "react").
 
 ## Performance
 - `useCallback` for functions passed as props or used in dependency arrays; `useMemo` for derived data and for objects or arrays passed as props; `React.memo` for components that re-render often with the same props (rows, list items, cards, form fields). Don't wrap trivial values.
@@ -171,7 +189,7 @@ Goal: **no JavaScript error ever leaves the user on a blank screen.** Use `react
 ## Tooling
 `package.json` script `check`: `lint` (ESLint `--fix`), `lint:style` (Stylelint `--fix`), `tsc -b --noEmit`, `vitest run`.
 
-Start from the templates: [`templates/web/eslint.config.js`](../templates/web/eslint.config.js) and [`templates/web/vite.config.ts`](../templates/web/vite.config.ts). After copying, the project's files are its source of truth; improvements that apply to every project go back into the templates.
+Start from the engineering-standards templates `templates/web/eslint.config.js` and `templates/web/vite.config.ts`. After copying, the project's files are its source of truth; improvements that apply to every project go back into the templates.
 
 The ESLint config (flat config, `typescript-eslint`, `react`, `react-hooks`, `import`, `@stylistic`) enforces: no `any`; explicit return and boundary types; no unused variables (except `_`-prefixed); no relative parent imports; ordered, grouped imports; sorted JSX props; rules of hooks; `console` limited to `error`; 2-space indent; LF line endings. The Stylelint config (`stylelint-config-standard-scss`, `stylelint-declaration-strict-value`) enforces token-only values, max nesting 3, no IDs, no `!important`, camelCase classes, and no `@import`. Each project's config files are the source of truth.
 

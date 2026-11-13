@@ -2,9 +2,27 @@
 
 Stack: Python 3.13+, FastAPI, Pydantic v2, SQLAlchemy 2.x, Alembic, `uv`. Examples use an `employee` entity; replace it with your own.
 
-Read [`common.md`](common.md) first. These rules add to it.
+Read [`common.md`](common.md) and [`api-contract.md`](api-contract.md) first. These rules add to them and say how FastAPI implements the contract.
 
 ---
+
+## Paths and commands
+
+What `common.md` refers to as "the stack rules name it":
+
+| Item | FastAPI |
+|---|---|
+| Configuration (the only place env vars are read) | `app/core/config.py`, with `.env.example` listing every variable |
+| Time zone and display formats | `app/constants/time_constants.py` |
+| User-facing messages | `app/constants/messages.py` |
+| Type checking | `mypy --strict` with the Pydantic plugin |
+| Money type | `Decimal` in Python, `Numeric(precision, scale)` in the database |
+| Lock file / install | `uv.lock` / `uv sync --frozen` |
+| Tooling config files | `pyproject.toml`, `Makefile` |
+| Full check | `make check` in `api/` |
+| One test file | `uv run pytest tests/unit/services/test_employee_service.py` |
+| Never commit | `.env`, `.venv/`, `__pycache__/`, database files (`*.db`), `.coverage`, `htmlcov/` |
+| Commit scope | `api` |
 
 ## Folder structure
 
@@ -63,50 +81,15 @@ api/
 - Services and repositories receive dependencies through constructors, wired with `Depends()` in `api/dependencies.py`.
 - Routers **NEVER** return ORM models; always a resource schema, declared with `response_model`.
 
-## REST conventions
-- Base path `/api/v1`. Resources are plural kebab-case nouns: `/employees`, `/salary-insights`.
-
-| Action | Method and path | Success |
-|---|---|---|
-| List | `GET /employees?page=1&per_page=20&search=&sort=-salary` | 200 |
-| Get one | `GET /employees/{id}` | 200 |
-| Create | `POST /employees` | 201 |
-| Update (partial) | `PATCH /employees/{id}` | 200 |
-| Delete | `DELETE /employees/{id}` | 204, no body |
-
-- Query parameters and JSON keys are `snake_case`.
-- Sorting: `sort=<field>` ascending, `sort=-<field>` descending. Sort fields are an allow-listed enum.
-- **NEVER** use data values as JSON object keys (`{ "India": {...} }`). Return arrays of objects (`[{ "country": "India", ... }]`). That keeps responses typed, ordered, and safe for the frontend's case conversion.
-- `GET` endpoints **NEVER** change data.
-
-## Response contract (identical for every endpoint)
-
-```json
-{ "data": { "id": 1, "full_name": "Asha Rao", "salary": "85000.00" } }
-```
-```json
-{
-  "data": [ { "id": 1, "full_name": "Asha Rao" } ],
-  "meta": { "total_count": 10000, "current_page": 1, "per_page": 20, "total_pages": 500 }
-}
-```
-```json
-{ "error": "Employee not found" }
-```
-Validation errors (422), and any domain error about one field (e.g. a 409 for a taken email), may add `details`, so the UI can highlight the right input:
-```json
-{ "error": "Validation failed", "details": [ { "field": "salary", "message": "Salary must be greater than 0" } ] }
-```
-
-- **MUST** replace FastAPI's default `{ "detail": ... }` errors by registering handlers for `RequestValidationError`, `starlette.exceptions.HTTPException` (also covers unknown routes), the domain exceptions, and `Exception`.
-- 500 responses return a generic message and log the stack trace (without personal data).
+## Implementing the API contract
+- Routers are grouped in `api/v1/api_router.py` under `/api/v1`; paths, methods, and status codes follow `api-contract.md`.
+- **MUST** replace FastAPI's default `{ "detail": ... }` errors by registering handlers for `RequestValidationError`, `starlette.exceptions.HTTPException` (also covers unknown routes), the domain exceptions, and `Exception`, all returning the contract's error shape.
 
 ## Pagination
 - Every paginated endpoint uses two generic schemas: `PaginationRequest` (`page ≥ 1`, `per_page` between 1 and `MAX_PER_PAGE`, an `offset` property) and `PaginatedResponse[T]` (`data`, `meta`) with a `create(items, total_count, pagination)` class method.
-- Defaults live in `constants/`: `DEFAULT_PAGE = 1`, `DEFAULT_PER_PAGE = 20`, `MAX_PER_PAGE = 100`. Above the max → 422.
+- Defaults live in `constants/`: `DEFAULT_PAGE = 1`, `DEFAULT_PER_PAGE = 20`, `MAX_PER_PAGE = 100`.
 - A list's query schema **extends** `PaginationRequest` with its filters (`EmployeeListRequest(PaginationRequest)`), and its route declares `response_model=PaginatedResponse[EmployeeResource]`.
-- The repository returns `(items, total_count)`. The service builds the response **only** with `PaginatedResponse.create(...)`. **NEVER** build `meta` by hand or redefine its fields per feature.
-- Edge cases: 0 results → `data: []`, `total_pages: 0`. A page beyond the last → 200 with `data: []` and the real `meta`, not a 404.
+- The repository returns `(items, total_count)`. The service builds the response **only** with `PaginatedResponse.create(...)`. **NEVER** build `meta` by hand.
 
 ## Input normalisation
 Happens in request schemas (Pydantic validators), so services and the database only see clean data:
@@ -135,26 +118,17 @@ Partial updates use `request.model_dump(exclude_unset=True)`, never `exclude_non
 - A new non-null column on an existing table has a `server_default`.
 - `downgrade()` works and is tested by a migration round-trip test.
 
-## Authentication (server-side sessions in httpOnly cookies)
-- On login, create a session row and set a cookie holding only a random session ID. **NEVER** use JWTs or bearer tokens for the browser, and **NEVER** return a token or session ID in a response body.
-- Session ID: `secrets.token_urlsafe(32)`. Store only its **SHA-256 hash**.
-- Cookie: `HttpOnly; Secure; SameSite=Lax; Path=/`, `Max-Age` = session lifetime. Name, lifetime, and the `Secure` flag come from `core/config.py` (`Secure` on everywhere except local development).
-- Endpoints: `POST /api/v1/auth/login` (200 + `Set-Cookie`, or 401), `POST /api/v1/auth/logout` (204, always succeeds), `GET /api/v1/auth/me` (200 or 401).
-- Login: the same generic error for a wrong email or a wrong password; a new session ID on every login; rate-limit failed attempts per email and IP → 429.
+## Sessions and authentication
+The contract (cookie attributes, endpoints, CSRF, CORS) is in `api-contract.md`. In FastAPI:
+- Session ID: `secrets.token_urlsafe(32)`. Store only its **SHA-256 hash** in a session row.
+- Cookie name, lifetime, and the `Secure` flag come from `core/config.py`.
 - Passwords: Argon2, in `core/security.py`. **NEVER** stored, logged, or returned in plain text.
-- **Protect routes at router level:** `APIRouter(dependencies=[Depends(get_current_user)])`, so a new endpoint can't be left public by accident. Only explicitly public endpoints (login, health) skip it.
-- 401 = not logged in or expired. 403 = logged in but not allowed.
-- CSRF: `SameSite=Lax`, plus an origin-check middleware that rejects `POST`/`PATCH`/`PUT`/`DELETE` from origins not in `ALLOWED_ORIGINS` → 403.
-- CORS (local development only): an explicit `allow_origins` list (**NEVER** `*`) with `allow_credentials=True`. In production, serve the frontend from the same origin.
-- Expired sessions are rejected and deleted when used.
+- **Protect routes at router level:** `APIRouter(dependencies=[Depends(get_current_user)])`, so a new endpoint can't be left public by accident. Only the project's listed public endpoints skip it.
+- The origin check is a middleware reading `ALLOWED_ORIGINS` from config; CORS uses `CORSMiddleware` with an explicit `allow_origins` list and `allow_credentials=True`, in local development only.
 
 ## Serving the frontend and health check
-- In production FastAPI serves the built React app:
-  - `/assets/*` → static files with `Cache-Control: public, max-age=31536000, immutable`. A missing asset returns a plain **404**, never `index.html`.
-  - `/api/*` → the API. Unknown `/api/*` paths return the JSON 404, never `index.html`.
-  - any other path → `index.html` with `Cache-Control: no-cache`, so client-side routing and reloads after a deploy work.
-- Register the API router **before** the frontend fallback.
-- `GET /api/health` (outside `/api/v1`, no auth) returns `200 { "data": { "status": "ok" } }` after `SELECT 1`.
+- In production FastAPI serves the built frontend as `api-contract.md` describes. Register the API router **before** the frontend fallback.
+- `GET /api/health` runs `SELECT 1` before answering.
 
 ## Testing
 - `pytest` + `pytest-cov`. Unit tests for services and repositories (in-memory database); integration tests for the HTTP contract, including the error shape and status codes.
@@ -164,4 +138,4 @@ Partial updates use `request.model_dump(exclude_unset=True)`, never `exclude_non
 
 ## Tooling
 - `uv` for Python and dependencies; `ruff check` + `ruff format`; `mypy --strict` with the Pydantic plugin; `pytest`.
-- `api/Makefile` (start from [`templates/api/Makefile`](../templates/api/Makefile)): `check` runs `ruff check --fix`, `ruff format`, `mypy --strict`, and `pytest --cov --cov-fail-under=<threshold>`.
+- `api/Makefile` (from the engineering-standards template `templates/api/Makefile`): `check` runs `ruff check --fix`, `ruff format`, `mypy --strict`, and `pytest --cov --cov-fail-under=<threshold>`.

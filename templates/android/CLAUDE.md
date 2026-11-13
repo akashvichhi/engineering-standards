@@ -1,6 +1,6 @@
 # Android rules: <Project name>
 
-@../.standards/rules/kotlin-android.md
+@../docs/standards/kotlin-android.md
 
 ## Project-specific Android rules
 

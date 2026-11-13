@@ -2,9 +2,27 @@
 
 Stack: Kotlin 2.x, Android Gradle Plugin, Jetpack Compose (Material 3), Kotlin coroutines and Flow, Jetpack ViewModel and Navigation, DataStore, Room (when a local database is needed). Examples use an `employee` entity; replace it with your own.
 
-Read [`common.md`](common.md) first. These rules add to it, and override it where they say so.
+Read [`common.md`](common.md) first, and [`api-contract.md`](api-contract.md) when the app calls or hosts an HTTP API. These rules add to them, and override `common.md` where they say so.
 
 ---
+
+## Paths and commands
+
+What `common.md` refers to as "the stack rules name it":
+
+| Item | Android |
+|---|---|
+| Configuration (the only place build-time values are read) | `config/AppConfig.kt`, with `local.properties.example` listing every local property |
+| Time zone and display formats | `constants/TimeConstants.kt` |
+| User-facing messages | `res/values/strings.xml` |
+| Type checking | The Kotlin compiler with warnings as errors, plus the typing rules below |
+| Money type | `BigDecimal` |
+| Lock file / install | `gradle.lockfile` (Gradle dependency locking) / any Gradle build uses it |
+| Tooling config files | `*.gradle.kts`, `gradle/libs.versions.toml`, `config/detekt/`, `Makefile` |
+| Full check | `make check` in `android/` |
+| One test class | `./gradlew testDebugUnitTest --tests "*EmployeeRepositoryTest"` |
+| Never commit | `build/`, `.gradle/`, `.kotlin/`, `local.properties`, keystores (`*.jks`, `*.keystore`), `*.apk`, `*.aab` |
+| Commit scope | `android` |
 
 ## Folder structure
 
@@ -149,4 +167,4 @@ android/
 ## Tooling
 - **ktlint** for formatting (Kotlin conventions, ktlint `filename` rule), **detekt** for static analysis (including `!!`, `GlobalScope`, magic numbers, complexity), **Android Lint** with warnings as errors, **Kover** for coverage.
 - `android/Makefile`: `check` runs ktlint (format), detekt, Android Lint, the unit tests, and the Kover verification at the project threshold (default 90%). The threshold lives in the check target, not in the default test task, so a single test class runs without failing on coverage.
-- Config templates for Android (`Makefile`, detekt config, version catalog) are added to `templates/android/` once they've been tested in a project, with their tested versions in a header comment.
+- Config templates for Android (`Makefile`, detekt config, version catalog) are added to the engineering-standards `templates/android/` once they've been tested in a project, with their tested versions in a header comment.
